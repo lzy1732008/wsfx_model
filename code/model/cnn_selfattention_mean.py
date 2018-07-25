@@ -68,8 +68,7 @@ class TextCNN(object):
                  t1 = tf.matmul(Q,K,adjoint_b=True)/math.sqrt(self.config.embedding_dim)       #[None,seq1,dim]*[None,dim,seq2] = [None.seq1,seq2]
                  t2 = tf.nn.softmax(t1, axis=2)
                  t3 = tf.matmul(t2, V)#[None,seq1,dim]
-
-
+                 gmp3 = tf.reduce_mean(t3,axis=1)
 
         with tf.name_scope("cnn1"):
             # CNN layer
@@ -84,14 +83,6 @@ class TextCNN(object):
                 conv = tf.layers.conv1d(self.input_x_2, self.config.num_filters, self.config.kernel_size, name='conv')#(?,26,256)
                 # global max pooling layer
                 gmp2 = tf.reduce_max(conv, reduction_indices=[1], name='gmp2')#(?,256)
-
-        with tf.name_scope("cnn3"):
-            # CNN layer
-            with tf.variable_scope("cnn-var3"):
-                conv = tf.layers.conv1d(t3, self.config.num_filters, self.config.kernel_size,
-                                        name='conv')  # (?,26,256)
-                # global max pooling layer
-                gmp3 = tf.reduce_max(conv, reduction_indices=[1], name='gmp3')  # (?,256)
 
         with tf.name_scope("concat"):
             concat = tf.concat([gmp1,gmp2,gmp3],1)
@@ -112,6 +103,8 @@ class TextCNN(object):
             self.loss = tf.reduce_mean(cross_entropy)#将交叉熵向量求和，即可得到交叉熵
             # 优化器
             self.optim = tf.train.AdamOptimizer(learning_rate=self.config.learning_rate).minimize(self.loss)
+
+
 
 
         with tf.name_scope("accuracy"):

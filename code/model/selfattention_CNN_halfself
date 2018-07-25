@@ -11,8 +11,8 @@ class TCNNConfig(object):
     """CNN配置参数"""
 
     embedding_dim = 128  # 词向量维度
-    seq_length_1 = 30  # 序列长度：
-    seq_length_2 = 50  # 序列长度：法条
+    seq_length_1 = 50  # 序列长度：
+    seq_length_2 = 5  # 序列长度：法条
     attention_size = 5
 
     num_classes = 2  # 类别数
@@ -58,16 +58,13 @@ class TextCNN(object):
                                   trainable=True, name='w1')
                  w2 = tf.Variable(tf.random_normal([2, 2, 1, 1], stddev=0, seed=2),
                                   trainable=True, name='w2')
-                 w3 = tf.Variable(tf.random_normal([2, 2, 1, 1], stddev=0, seed=3),
-                                  trainable=True, name='w2')
+
                  Q = tf.nn.conv2d(newinput1, w1, strides=[1, 1, 1, 1], padding='SAME')[:,:,:,0]
                  K = tf.nn.conv2d(newinput2, w2, strides=[1, 1, 1, 1], padding='SAME')[:,:,:,0]
-                 V = tf.nn.conv2d(newinput2, w3, strides=[1, 1, 1, 1], padding='SAME')[:,:,:,0]
 
              with tf.variable_scope("selfattention"):
                  t1 = tf.matmul(Q,K,adjoint_b=True)/math.sqrt(self.config.embedding_dim)       #[None,seq1,dim]*[None,dim,seq2] = [None.seq1,seq2]
                  t2 = tf.nn.softmax(t1, axis=2)
-                 t3 = tf.matmul(t2, V)#[None,seq1,dim]
 
 
 
@@ -88,7 +85,7 @@ class TextCNN(object):
         with tf.name_scope("cnn3"):
             # CNN layer
             with tf.variable_scope("cnn-var3"):
-                conv = tf.layers.conv1d(t3, self.config.num_filters, self.config.kernel_size,
+                conv = tf.layers.conv1d(t2, self.config.num_filters, self.config.kernel_size,
                                         name='conv')  # (?,26,256)
                 # global max pooling layer
                 gmp3 = tf.reduce_max(conv, reduction_indices=[1], name='gmp3')  # (?,256)

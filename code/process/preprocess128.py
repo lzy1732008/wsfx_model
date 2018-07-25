@@ -1,6 +1,7 @@
 from gensim.models import word2vec
 import gensim
 import numpy
+from code.util import matrixop
 import jieba.analyse as ana
 import random
 
@@ -14,6 +15,12 @@ class preprocess():
 
     def setinputdatapath(self,datapath):
         self.inputdatapath = datapath
+
+    def settestdatapath(self,datapath):
+        self.testdatapath = datapath
+
+    def setvalidatedatapath(self, datapath):
+        self.validatedatapath = datapath
 
     def setbjpath(self,datapath):#补集
         self.bjpath = datapath
@@ -47,6 +54,8 @@ class preprocess():
 
         if flag == 0:#生成训练数据
             datapath = self.inputdatapath
+        elif flag == 1:
+            datapath = self.validatedatapath
         else:
             datapath = self.testdatapath
 
@@ -72,9 +81,3 @@ class preprocess():
         print(num2)
         print(len(data_1))
         return numpy.array(data_1),numpy.array(data_2),numpy.array(output)
-
-    def settestdatapath(self,datapath):
-        self.testdatapath = datapath
-
-
-

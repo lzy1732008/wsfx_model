@@ -8,7 +8,7 @@ class TRNNConfig(object):
     """RNN配置参数"""
 
     # 模型参数
-    embedding_dim = 128      # 词向量维度
+    embedding_dim = 128     # 词向量维度
     seq_length_1 = 30       # 序列长度
     seq_length_2 = 50      # 序列长度
     num_classes = 2        # 类别数
@@ -17,8 +17,8 @@ class TRNNConfig(object):
     num_layers= 2           # 隐藏层层数
     hidden_dim = 128        # 隐藏层神经元
     rnn = 'lstm'             # lstm 或 gru
-    num_filters = 256        # 卷积核数目
-    kernel_size = 5          # 卷积核尺寸
+    num_filters = 256  # 卷积核数目
+    kernel_size = 5  # 卷积核尺寸
 
 
     dropout_keep_prob = 0.8 # dropout保留比例
@@ -85,21 +85,30 @@ class TextRNN(object):
             beta = tf.nn.softmax(dot,axis=2)
             alpha = tf.nn.softmax(dot,axis=1)
 
-        with tf.name_scope('cnn1'):
-            conv1 = tf.layers.conv1d(beta, self.config.num_filters, self.config.kernel_size, name='conv1')
-            gmp1 = tf.reduce_max(conv1, reduction_indices=[1], name='gmp1')
-
-        with tf.name_scope('cnn2'):
-            conv2 = tf.layers.conv1d(alpha, self.config.num_filters, self.config.kernel_size, name='conv2')
-            gmp2 = tf.reduce_max(conv2, reduction_indices=[1], name='gmp2')
-
-        with tf.name_scope('concat'):
-            result = tf.concat([gmp1,gmp2],1)
-
+        with tf.name_scope("cnn1"):
+            # CNN layer
+            with tf.variable_scope("cnn-var1"):
+                conv3 = tf.layers.conv1d(beta, self.config.num_filters, self.config.kernel_size,
+                                        name='conv1')  # (?,26,256)
+                gmp1 = tf.reduce_max(conv3, reduction_indices=[1], name='gmp3')  # (?,256)
+        with tf.name_scope("cnn2"):
+            # CNN layer
+            with tf.variable_scope("cnn-var2"):
+                conv3 = tf.layers.conv1d(alpha, self.config.num_filters, self.config.kernel_size,
+                                        name='conv2')  # (?,26,256)
+                gmp2 = tf.reduce_max(conv3, reduction_indices=[1], name='gmp3')  # (?,256)
+        with tf.name_scope("cnn3"):
+            # CNN layer
+            with tf.variable_scope("cnn-var3"):
+                conv3 = tf.layers.conv1d(dot, self.config.num_filters, self.config.kernel_size,
+                                        name='conv3')  # (?,26,256)
+                gmp3 = tf.reduce_max(conv3, reduction_indices=[1], name='gmp3')  # (?,256)
+        with tf.name_scope("concat"):
+            concat = tf.concat([gmp1,gmp2,gmp3], 1)
 
         with tf.name_scope("score"):
             # 全连接层，后面接dropout以及relu激活
-            fc = tf.layers.dense(result, self.config.hidden_dim, name='fc1')#w*input+b,其中可以在此方法中指定w,b的初始值，或者通过tf.get_varable指定
+            fc = tf.layers.dense(concat, self.config.hidden_dim, name='fc1')#w*input+b,其中可以在此方法中指定w,b的初始值，或者通过tf.get_varable指定
             fc = tf.contrib.layers.dropout(fc, self.keep_prob)#根据比例keep_prob输出输入数据，最终返回一个张量
             fc = tf.nn.relu(fc)#激活函数，此时fc的维度是hidden_dim
 

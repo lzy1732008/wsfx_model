@@ -8,9 +8,9 @@ class TRNNConfig(object):
     """RNN配置参数"""
 
     # 模型参数
-    embedding_dim = 64      # 词向量维度
+    embedding_dim = 128      # 词向量维度
     seq_length_1 = 30       # 序列长度
-    seq_length_2 = 50      # 序列长度
+    seq_length_2 = 10      # 序列长度
     num_classes = 2        # 类别数
 
 
@@ -77,12 +77,6 @@ class TextRNN(object):
                 rnn_cell_2 = tf.contrib.rnn.MultiRNNCell(cells_2, state_is_tuple=True)
                 _outputs_2, state_2 = tf.nn.dynamic_rnn(cell=rnn_cell_2, inputs=self.input_x_2, dtype=tf.float32,
                                                         time_major=False)  # time_major等于 false代表输入和输出的格式是[batch_size, max_time, depth]
-
-        with tf.name_scope("attention"):
-            dot = tf.matmul(_outputs_1,_outputs_2,adjoint_b=True)
-            #对行做attention
-            beta = tf.nn.softmax(dot,axis=2)
-            alpha = tf.nn.softmax(dot,axis=1)
 
         with tf.name_scope("cnn3"):
             # CNN layer

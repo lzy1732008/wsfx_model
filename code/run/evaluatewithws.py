@@ -7,13 +7,13 @@ import os
 import tensorflow as tf
 import numpy as np
 import random
-import pandas as pd
+
 
 from code.process.preprocess128 import preprocess
 # from cnn_word2vec.predict import CnnModel
 
 
-testdatapath = '事实到法条/validate-data/D-validate-20.txt'
+# testdatapath = '事实到法条/validate-data/D-validate-20.txt'
 # save_dir = '事实到法条/checkpoints/cnn-使用新训练数据-128-data465'
 # save_path = os.path.join(save_dir, 'best_validation')
 # cnn_model = CnnModel(save_path)
@@ -109,7 +109,7 @@ testdatapath = '事实到法条/validate-data/D-validate-20.txt'
 #     f = precision_average*recall_average*2/(precision_average+recall_average)
 #     print(precision_average,recall_average,f)
 
-def evaluatews(y_pre_cls,y_test_cls):
+def evaluatews(y_pre_cls,y_test_cls,testdatapath):
     precision = []
     recall = []
     # 加载数据
@@ -121,7 +121,7 @@ def evaluatews(y_pre_cls,y_test_cls):
             item = content[i]
             allsample = item.split('\n')[:-1]  # 摈弃最后一个
             for y,y_,sample in zip(y_test_cls[base:base+len(allsample)],y_pre_cls[base:base+len(allsample)],allsample):
-                print(y,y_,sample)
+                # print(y,y_,sample)
                 if y_ == 1:
                     pp += 1
                     if y == 1:
@@ -134,8 +134,8 @@ def evaluatews(y_pre_cls,y_test_cls):
             recall_i = pt/t
             precision.append(precision_i)
             recall.append(recall_i)
-            print('pp,pt,t:',pp,pt,t)
-            print('precision,recall',precision_i,recall_i)
+            # print('pp,pt,t:',pp,pt,t)
+            # print('precision,recall',precision_i,recall_i)
             base += len(allsample)
 
     print(len(precision), len(recall))
