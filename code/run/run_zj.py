@@ -26,10 +26,10 @@ testpath_name = test_path + '/test-name.txt'
 testpath = test_path +'/test-noname.txt'
 modelpath = '../../source/证据到事实/2014model_size128.model'
 
-model_save = '../../result/model_files/事实到法条'
-save_dir  = model_save + '/HNA_checkpoints/128-465-ws-50-50'
+model_save = '../../result/model_files/证据到事实'
+save_dir  = model_save + '/HNA_checkpoints/128-465-ws-50-70'
 save_path = os.path.join(save_dir, 'best_validation')  # 最佳验证结果保存路径
-tensorboard_dir = model_save + '/HNA_tensorboard/128-465-ws-50-50'
+tensorboard_dir = model_save + '/HNA_tensorboard/128-465-ws-50-70'
 
 
 

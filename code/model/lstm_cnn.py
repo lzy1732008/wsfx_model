@@ -9,8 +9,8 @@ class TRNNConfig(object):
 
     # 模型参数
     embedding_dim = 128      # 词向量维度
-    seq_length_1 = 30       # 序列长度
-    seq_length_2 = 10      # 序列长度
+    seq_length_1 = 50       # 序列长度
+    seq_length_2 = 70      # 序列长度
     num_classes = 2        # 类别数
 
 

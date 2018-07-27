@@ -114,7 +114,7 @@ def evaluatews(y_pre_cls,y_test_cls,testdatapath):
     recall = []
     # 加载数据
     with open(testdatapath, 'r', encoding='utf-8') as f:
-        content = f.read().split('.xml_ft2jl.xls')
+        content = f.read().split('.xml_20180705.xls')
         base = 0
         for i in range(1, len(content)):
             pp,pt,t = 0,0,0
