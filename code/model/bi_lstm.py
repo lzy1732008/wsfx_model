@@ -9,7 +9,7 @@ class TRNNConfig(object):
 
     # 模型参数
     embedding_dim = 128      # 词向量维度
-    seq_length_1 = 40       # 序列长度
+    seq_length_1 = 30       # 序列长度
     seq_length_2 = 50      # 序列长度
     num_classes = 2        # 类别数
 
@@ -75,50 +75,47 @@ class TextRNN(object):
                 _outputs_1, state_1 = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw, cell_bw=cell_bw,
                                                                       inputs=self.input_x_1,
                                                                       initial_state_fw=init_state_fw,initial_state_bw = init_state_bw)
-            #
-            # with tf.variable_scope("bi-lstm2"):
-            #     cell_fw = [dropout() for _ in range(self.config.num_layers)]
-            #     cell_bw = [dropout() for _ in range(self.config.num_layers)]
-            #
-            #     cell_fw = tf.contrib.rnn.MultiRNNCell(cell_fw, state_is_tuple=True)
-            #     cell_bw = tf.contrib.rnn.MultiRNNCell(cell_bw, state_is_tuple=True)
-            #     # cell_fw, cell_bw = bi_lstm()
-            #     init_state_fw = cell_fw.zero_state(batch_size=self.config.batch_size, dtype=tf.float32)
-            #     init_state_bw = cell_bw.zero_state(batch_size=self.config.batch_size, dtype=tf.float32)
-            #
-            #     _outputs_2, state_2 = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw, cell_bw=cell_bw,
-            #                                                           inputs=self.input_x_2,
-            #                                                           initial_state_fw=init_state_fw,initial_state_bw = init_state_bw)
-            #
+
+            with tf.variable_scope("bi-lstm2"):
+                cell_fw = [dropout() for _ in range(self.config.num_layers)]
+                cell_bw = [dropout() for _ in range(self.config.num_layers)]
+
+                cell_fw = tf.contrib.rnn.MultiRNNCell(cell_fw, state_is_tuple=True)
+                cell_bw = tf.contrib.rnn.MultiRNNCell(cell_bw, state_is_tuple=True)
+                # cell_fw, cell_bw = bi_lstm()
+                init_state_fw = cell_fw.zero_state(batch_size=self.config.batch_size, dtype=tf.float32)
+                init_state_bw = cell_bw.zero_state(batch_size=self.config.batch_size, dtype=tf.float32)
+
+                _outputs_2, state_2 = tf.nn.bidirectional_dynamic_rnn(cell_fw=cell_fw, cell_bw=cell_bw,
+                                                                      inputs=self.input_x_2,
+                                                                      initial_state_fw=init_state_fw,initial_state_bw = init_state_bw)
+
 
         with tf.name_scope("sum"):
            with tf.variable_scope("input1_sum"):
+                state_fw = state_1[0]
                 output_fw = _outputs_1[0]#shape:[batch_size,max_time,output_size]
                 output_bw = _outputs_1[1]
                 last_fw = output_fw[:,-1,:]#shape:[batch_size,output_size]
                 last_bw = output_bw[:,-1,:]
                 last1 = tf.add(last_fw,last_bw)/2#shape:[batch_size,output_size]
-                print('input1_sum')
-                print(output_fw.shape, output_bw.shape, last_fw.shape, last_bw.shape, last1.shape)
 
-        #    with tf.variable_scope("input2_sum"):
-        #         output_fw = _outputs_2[0]#shape:[batch_size,max_time,output_size]
-        #         output_bw = _outputs_2[1]
-        #         last_fw = output_fw[:,-1,:]#shape:[batch_size,output_size]
-        #         last_bw = output_bw[:,-1,:]
-        #         last2 = tf.add(last_fw, last_bw) / 2#shape:[batch_size,output_size]
-        #         print('input2_sum')
-        #         print(output_fw.shape,output_bw.shape,last_fw.shape,last_bw.shape,last2.shape)
-        #
-        # with tf.name_scope('concat'):
-        #     result = tf.concat([last1,last2],1)
-        #     print('concat')
-        #     print(result.shape)
+           with tf.variable_scope("input2_sum"):
+                output_fw = _outputs_2[0]#shape:[batch_size,max_time,output_size]
+                output_bw = _outputs_2[1]
+                last_fw = output_fw[:,-1,:]#shape:[batch_size,output_size]
+                last_bw = output_bw[:,-1,:]
+                last2 = tf.add(last_fw, last_bw) / 2#shape:[ batch_size,output_size]
+
+
+        with tf.name_scope('concat'):
+            result = tf.concat([last1,last2],1)
+
 
 
         with tf.name_scope("score"):
             # 全连接层，后面接dropout以及relu激活
-            fc = tf.layers.dense(last1, 2* self.config.hidden_dim, name='fc1')#w*input+b,其中可以在此方法中指定w,b的初始值，或者通过tf.get_varable指定
+            fc = tf.layers.dense(result, self.config.hidden_dim, name='fc1')#w*input+b,其中可以在此方法中指定w,b的初始值，或者通过tf.get_varable指定
             fc = tf.contrib.layers.dropout(fc, self.keep_prob)#根据比例keep_prob输出输入数据，最终返回一个张量
             fc = tf.nn.relu(fc)#激活函数，此时fc的维度是hidden_dim
 

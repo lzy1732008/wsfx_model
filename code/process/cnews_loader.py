@@ -116,7 +116,7 @@ def process_file(filename, word_to_id, cat_to_id, max_length=600):
 def batch_iter(x1, x2, y, batch_size=64):
     """生成批次数据"""
     data_len = len(x1)
-    num_batch = int((data_len - 1) / batch_size) + 1
+    num_batch = int((data_len - 1) / batch_size) - 1
 
     indices = np.random.permutation(np.arange(data_len)) #洗牌
     x1_shuffle = x1[indices]

@@ -16,39 +16,25 @@ from code.model.bi_lstm import TRNNConfig,TextRNN
 from code.process.cnews_loader import batch_iter
 from code.run.evaluatewithws import evaluatews
 
-#
-source_path = '../../source/事实到法条'
-trainpath = source_path + '/train-465-ws.txt'
-validatepath = source_path + '/test-465-ws.txt'
+
+
+
+
+
+
+source_path = '../../source/法条到结论/不删除负例'
+trainpath = source_path + '/train-465.txt'
+validatepath = source_path + '/test-465.txt'
 #####
-test_path = '../../source/事实到法条'
-testpath_name = test_path + '/validate-35.txt'
-testpath = test_path +'/validate-35-noname.txt'
+test_path = '../../source/法条到结论/文书删除负例/'
+testpath_name = test_path + '/validate-35-name.txt'
+testpath = test_path +'/validate-35.txt'
 modelpath = '../../source/2014model_size128.model'
 
-model_save = '../../result/model_files/事实到法条'
-save_dir  = model_save + '/bilstm_checkpoints/128-465-ws-30-50'
+model_save = '../../result/model_files/法条到结论'
+save_dir  = model_save + '/bilstm__checkpoints/128-465-30-50'
 save_path = os.path.join(save_dir, 'best_validation')  # 最佳验证结果保存路径
-tensorboard_dir = model_save + '/bilstm_tensorboard/128-465-ws-30-50'
-
-
-
-
-
-
-# source_path = '../../source/法条到结论/不删除负例'
-# trainpath = source_path + '/train-465.txt'
-# validatepath = source_path + '/test-465.txt'
-# #####
-# test_path = '../../source/法条到结论/文书删除负例/'
-# testpath_name = test_path + '/validate-35-name.txt'
-# testpath = test_path +'/validate-35.txt'
-# modelpath = '../../source/2014model_size128.model'
-#
-# model_save = '../../result/model_files/法条到结论'
-# save_dir  = model_save + '/cnn_selfattention_lstm__checkpoints/128-465-30-50'
-# save_path = os.path.join(save_dir, 'best_validation')  # 最佳验证结果保存路径
-# tensorboard_dir = model_save + '/cnn_selfattention_lstm_tensorboard/128-465-30-50'  #修改处
+tensorboard_dir = model_save + '/bilstm_tensorboard/128-465-30-50'  #修改处
 
 
 

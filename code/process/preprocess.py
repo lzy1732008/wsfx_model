@@ -1,7 +1,7 @@
 from gensim.models import word2vec
 import gensim
 import numpy
-from cnn_word2vec import matrixop
+from code.util import matrixop
 import jieba.analyse as ana
 import random
 
@@ -38,7 +38,7 @@ class preprocess():
 
     def vector(self,v):
         try:
-            return self.model[v]
+            return self.model[v][:64]
         except:
             return [0]*64
 
