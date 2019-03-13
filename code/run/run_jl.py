@@ -12,7 +12,7 @@ import tensorflow as tf
 from sklearn import metrics
 
 from code.process.preprocess128 import preprocess
-from code.model.bi_lstm import TRNNConfig,TextRNN
+from code.model.lstm_attention1 import TRNNConfig,TextRNN
 from code.process.cnews_loader import batch_iter
 from code.run.evaluatewithws import evaluatews
 
@@ -32,9 +32,9 @@ testpath = test_path +'/validate-35.txt'
 modelpath = '../../source/2014model_size128.model'
 
 model_save = '../../result/model_files/法条到结论'
-save_dir  = model_save + '/bilstm__checkpoints/128-465-30-50'
+save_dir  = model_save + '/attention-over-attention__checkpoints/128-465-30-50'
 save_path = os.path.join(save_dir, 'best_validation')  # 最佳验证结果保存路径
-tensorboard_dir = model_save + '/bilstm_tensorboard/128-465-30-50'  #修改处
+tensorboard_dir = model_save + '/attention-over-attention_tensorboard/128-465-30-50'  #修改处
 
 
 

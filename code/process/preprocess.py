@@ -32,15 +32,15 @@ class preprocess():
         if (len(data) >= seq_length):
             data = data[:seq_length]
         else:
-            miss = [[0] * 64 for _ in range(seq_length - len(data))]
+            miss = [[0] * 128 for _ in range(seq_length - len(data))]
             data.extend(miss)
         return numpy.array(data)
 
     def vector(self,v):
         try:
-            return self.model[v][:64]
+            return self.model[v][:128]
         except:
-            return [0]*64
+            return [0]*128
 
 
     def setinputdata(self,seq1_length,seq2_length,flag):

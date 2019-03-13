@@ -112,17 +112,38 @@ def process_file(filename, word_to_id, cat_to_id, max_length=600):
 
     return x_pad, y_pad
 
-
 def batch_iter(x1, x2, y, batch_size=64):
     """生成批次数据"""
     data_len = len(x1)
     num_batch = int((data_len - 1) / batch_size) - 1
-
+    #
     indices = np.random.permutation(np.arange(data_len)) #洗牌
     x1_shuffle = x1[indices]
     x2_shuffle = x2[indices]
-    # x3_shuffle = x3[indices]
     y_shuffle = y[indices]
+
+    for i in range(num_batch):
+        start_id = i * batch_size
+        end_id = min((i + 1) * batch_size, data_len)
+        yield x1_shuffle[start_id:end_id],x2_shuffle[start_id:end_id], y_shuffle[start_id:end_id]
+
+
+def batch_iter_nosf(x1, x2, y, batch_size=64):
+    """生成批次数据"""
+    data_len = len(x1)
+    num_batch = int((data_len - 1) / batch_size) - 1
+    #
+    # indices = np.random.permutation(np.arange(data_len)) #洗牌
+    # x1_shuffle = x1[indices]
+    # x2_shuffle = x2[indices]
+    # # x3_shuffle = x3[indices]
+    # y_shuffle = y[indices]
+
+    x1_shuffle = x1
+    x2_shuffle = x2
+    # x3_shuffle = x3[indices]
+    y_shuffle = y
+
 
     for i in range(num_batch):
         start_id = i * batch_size

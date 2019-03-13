@@ -12,8 +12,9 @@ import tensorflow as tf
 from sklearn import metrics
 
 from code.process.preprocess128 import preprocess
-from code.model.bi_lstm import TRNNConfig,TextRNN
+from code.model.lstm_cnn_attention import TRNNConfig,TextRNN
 from code.process.cnews_loader import batch_iter
+from code.process.cnews_loader import batch_iter_nosf
 from code.run.evaluatewithws import evaluatews
 
 #
@@ -27,9 +28,9 @@ testpath = test_path +'/validate-35-noname.txt'
 modelpath = '../../source/2014model_size128.model'
 
 model_save = '../../result/model_files/事实到法条'
-save_dir  = model_save + '/bilstm_checkpoints/128-465-ws-30-50'
+save_dir  = model_save + '/HNA_checkpoints/128-465-ws-30-50-v2'
 save_path = os.path.join(save_dir, 'best_validation')  # 最佳验证结果保存路径
-tensorboard_dir = model_save + '/bilstm_tensorboard/128-465-ws-30-50'
+tensorboard_dir = model_save + '/HNA_tensorboard/128-465-ws-30-50-v2'
 
 
 
@@ -80,6 +81,23 @@ def evaluate(sess, x1_,x2_,y_):
     """评估在某一数据上的准确率和损失"""
     data_len = len(x1_)
     batch_eval = batch_iter(x1_, x2_,y_, 128)
+    total_loss = 0.0
+    total_acc = 0.0
+    for x1_batch,x2_batch, y_batch in batch_eval:
+        batch_len = len(x1_batch)
+        feed_dict = feed_data(x1_batch,x2_batch,y_batch, 1.0)
+        loss, acc = sess.run([model.loss, model.acc], feed_dict=feed_dict)
+        total_loss += loss * batch_len
+        total_acc += acc * batch_len
+
+    return total_loss / data_len, total_acc / data_len
+
+
+
+def evaluate_nosf(sess, x1_,x2_,y_):
+    """评估在某一数据上的准确率和损失"""
+    data_len = len(x1_)
+    batch_eval = batch_iter_nosf(x1_, x2_,y_, 128)
     total_loss = 0.0
     total_acc = 0.0
     for x1_batch,x2_batch, y_batch in batch_eval:
@@ -180,6 +198,7 @@ def train():
             break
 
 def test():
+    f = open('record.txt','w',encoding='utf-8')
     print("Loading test data...")
     start_time = time.time()
     x1_test, x2_test, y_test = p.setinputdata(model.config.seq_length_1, model.config.seq_length_2,  flag = 2)
@@ -200,6 +219,7 @@ def test():
 
     y_test_cls = np.argmax(y_test, 1)
     y_pred_cls = np.zeros(shape=len(x1_test), dtype=np.int32)  # 保存预测结果
+    flag = 0
     for i in range(num_batch):  # 逐批次处理
         start_id = i * batch_size
         end_id = min((i + 1) * batch_size, data_len)
@@ -208,8 +228,26 @@ def test():
             model.input_x_2: x2_test[start_id:end_id],
             model.keep_prob: 1.0   #这个表示测试时不使用dropout对神经元过滤
         }
-        y_pred_cls[start_id:end_id] = session.run(model.y_pred_cls, feed_dict=feed_dict)   #将所有批次的预测结果都存放在y_pred_cls中
+        Q = session.run([model.y_pred_cls, model.alpha],feed_dict=feed_dict)   #将所有批次的预测结果都存放在y_pred_cls中
+        y_pred_cls[start_id:end_id], beta = Q[0], Q[1]
+        print('start-end:',start_id,end_id)
+        s = ''
+        if flag == 0:
+            print(beta.shape)
+            beta = beta[0]
+            print(np.mean(beta,axis=0))
+            for i in range(30):
+                for j in range(50):
+                    s += str(beta[i][j])+' '
+                    # print(beta[i][j])
+                s += '\n'
 
+            flag = 1
+            f.write(s)
+            f.close()
+
+
+        # print('alpha:',alpha)
 
 
     print("Precision, Recall and F1-Score...")
@@ -238,4 +276,4 @@ model = TextRNN(config)
 
 #
 y_test_cls,y_pred_cls = test()
-evaluatews(y_pre_cls=y_pred_cls,y_test_cls=y_test_cls,testdatapath=testpath_name)
+#evaluatews(y_pre_cls=y_pred_cls,y_test_cls=y_test_cls,testdatapath=testpath_name)

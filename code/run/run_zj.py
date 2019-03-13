@@ -12,7 +12,7 @@ import tensorflow as tf
 from sklearn import metrics
 
 from code.process.preprocess128 import preprocess
-from code.model.selfattention_CNN import TCNNConfig,TextCNN
+from code.model.lstm_cnn_attention import TRNNConfig,TextRNN
 from code.process.cnews_loader import batch_iter
 from code.run.evaluatewithws import evaluatews
 
@@ -27,9 +27,9 @@ testpath = test_path +'/test-noname.txt'
 modelpath = '../../source/证据到事实/2014model_size128.model'
 
 model_save = '../../result/model_files/证据到事实'
-save_dir  = model_save + '/HNS_checkpoints/128-465-ws-50-70'
+save_dir  = model_save + '/attention-over-attention__checkpoints/128-465-ws-30-5'
 save_path = os.path.join(save_dir, 'best_validation')  # 最佳验证结果保存路径
-tensorboard_dir = model_save + '/HNS_tensorboard/128-465-ws-50-70'
+tensorboard_dir = model_save + '/attention-over-attention_tensorboard/128-465-ws-30-5'
 
 
 
@@ -233,8 +233,8 @@ model = TextCNN(config)
 # config = TRNNConfig()
 # model = TextRNN(config)
 
-train()
+# train()
 
 #
-# y_test_cls,y_pred_cls = test()
-# evaluatews(y_pre_cls=y_pred_cls,y_test_cls=y_test_cls,testdatapath=testpath_name)
+y_test_cls,y_pred_cls = test()
+evaluatews(y_pre_cls=y_pred_cls,y_test_cls=y_test_cls,testdatapath=testpath_name)

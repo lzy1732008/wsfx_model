@@ -9,8 +9,8 @@ class TRNNConfig(object):
 
     # 模型参数
     embedding_dim = 128      # 词向量维度
-    seq_length_1 = 50       # 序列长度
-    seq_length_2 = 70      # 序列长度
+    seq_length_1 = 30       # 序列长度
+    seq_length_2 = 50      # 序列长度
     num_classes = 2        # 类别数
 
 
@@ -81,15 +81,16 @@ class TextRNN(object):
         with tf.name_scope("attention"):
             dot = tf.matmul(_outputs_1,_outputs_2,adjoint_b=True)
             #对行做attention
-            beta = tf.nn.softmax(dot,axis=2)
-            alpha = tf.nn.softmax(dot,axis=1)
+            self.beta = tf.nn.softmax(dot,axis=2)
+            self.alpha = tf.nn.softmax(dot,axis=1)
+
 
         with tf.name_scope('cnn1'):
-            conv1 = tf.layers.conv1d(beta, self.config.num_filters, self.config.kernel_size, name='conv1')
+            conv1 = tf.layers.conv1d(self.beta, self.config.num_filters, self.config.kernel_size, name='conv1')
             gmp1 = tf.reduce_max(conv1, reduction_indices=[1], name='gmp1')
 
         with tf.name_scope('cnn2'):
-            conv2 = tf.layers.conv1d(alpha, self.config.num_filters, self.config.kernel_size, name='conv2')
+            conv2 = tf.layers.conv1d(self.alpha, self.config.num_filters, self.config.kernel_size, name='conv2')
             gmp2 = tf.reduce_max(conv2, reduction_indices=[1], name='gmp2')
 
         with tf.name_scope("cnn3"):
